@@ -4,12 +4,13 @@
 
 ## 1. Verdict
 
-**The application is fully implemented and passes every check that can run on this machine. The assessment is NOT declared complete**, because two mandatory items cannot be verified without external access:
+**The application is fully implemented, deployed and verified live. The assessment is NOT declared complete**, because one mandatory item cannot be verified without Docker:
 
 | Blocked item | Needs |
 |---|---|
 | Docker image build and `docker compose up` (OPS-01/02/03/07, success criterion 15) | Docker installed on the host |
-| Live deployment on Render + Vercel | Render and Vercel accounts |
+
+**Deployed (2026-11-13):** frontend [assesment-virallens.vercel.app](https://assesment-virallens.vercel.app), API `https://ai-support-api-4v06.onrender.com` — see §9.
 
 **Update 2026-11-13:** with the owner's MongoDB Atlas cluster and OpenRouter key in `server/.env`, real AI replies (CHAT-03, criterion 6) and Atlas connectivity (criterion 2) were verified locally — see §8.
 
@@ -165,7 +166,7 @@ Testing note: database tests run against a real `mongod` binary (mongodb-memory-
 | 17 | Ready for GitHub submission | PASS | `.gitignore` verified, no secrets, README "GitHub submission" steps. Pushed by the owner 2026-11-13 to [alok-0404/assesment_virallens](https://github.com/alok-0404/assesment_virallens) (`main` @ `4ed2c10`, 139 files, no `.env`/`node_modules`/`dist`, 0 secret matches) |
 | 18 | Deployment-ready configuration | PASS (config) | `render.yaml`, `client/vercel.json` valid; placeholders `REPLACE-WITH-RENDER-SERVICE` / `REPLACE-WITH-VERCEL-APP` must be filled at deploy time |
 
-**Deployment status: NOT DEPLOYED — BLOCKED.** No Render or Vercel URL exists; no production behaviour (cookies across the Vercel → Render rewrite, CORS, `TRUST_PROXY`, cold start) has been verified.
+**Deployment status: DEPLOYED and VERIFIED** (2026-11-13) — see §9.
 
 ## 6. Known issues and limitations
 
@@ -182,8 +183,6 @@ Testing note: database tests run against a real `mongod` binary (mongodb-memory-
 | Item | Action | Verification |
 |---|---|---|
 | Docker (OPS-01/02/03/07, criterion 15, NFR-06 real signal) | Install Docker Desktop | `docker compose config` → `docker compose up --build` → `docker compose ps` (both healthy) → journey at `http://localhost:8080` → `docker compose down` (clean SIGTERM stop) |
-| Deployment | Push to GitHub; Render Blueprint from `render.yaml` (set `MONGODB_URI`, `OPENROUTER_API_KEY`, `CLIENT_ORIGIN`); replace the Render URL in `client/vercel.json`; import `client/` in Vercel | Full journey on the Vercel URL; cookie `Secure`; check `TRUST_PROXY` per README "Deployment" |
-| GitHub submission | `git add -A && git commit`, create the remote, push | README "GitHub submission" |
 
 ## 8. Live verification with real credentials (2026-11-13)
 
@@ -193,3 +192,14 @@ Owner-provided MongoDB Atlas M0 cluster and OpenRouter key in the gitignored `se
 - `npm run smoke:ai` → real customer-support reply in 8.3 s (559 tokens).
 - Browser (Vite :5173 → API :5000 → Atlas + OpenRouter): signup "Atlas Tester" → `POST /api/auth/signup 201`; suggested prompt "How do I return an item and get a refund?" → real Markdown reply (`POST /api/chat/send 201`, 12.9 s), URL `/chat/:id`, history entry added; follow-up "What was my previous question about?" → "You asked how to return an item and receive a refund." (`201`, 4.2 s) — context confirmed; page reload → session, both exchanges and history restored from Atlas; `document.cookie` empty (HttpOnly).
 - Note: free models have provider-side daily request limits; the reasoning model chosen adds latency (4–13 s observed), within the 30 s AI timeout.
+
+## 9. Deployment verification (2026-11-13)
+
+Render Blueprint (`render.yaml`) → web service `ai-support-api` (free, Node 24.22.3), `https://ai-support-api-4v06.onrender.com`; Vercel project from `client/` → `https://assesment-virallens.vercel.app` with `/api/*` rewritten to Render (`client/vercel.json`).
+
+- `GET /api/health` (direct and through Vercel) → 200 `database: connected`; `Cache-Control: no-store`, HSTS, no `X-Powered-By`.
+- Vercel: `/` and `/chat` (SPA fallback) → 200; page headers `X-Frame-Options: DENY`, `nosniff`, CSP.
+- CORS: before `CLIENT_ORIGIN` was set, `Origin: https://assesment-virallens.vercel.app` → 403 `CORS_FORBIDDEN` (as designed); a Blueprint push did not re-sync env vars, so the owner updated `CLIENT_ORIGIN` / `OPENROUTER_APP_URL` in the Render dashboard → 200.
+- Production cookie through the Vercel rewrite: `Path=/; HttpOnly; Secure; SameSite=Lax`.
+- `TRUST_PROXY=1` (D-015): rate-limit counters for requests sent through Vercel continued the same per-client counter as direct requests to Render (never reset to a fresh Vercel-edge key) → the limiter keys on the real client IP; no change needed.
+- Browser journey on the live URL: signup "Demo Reviewer" → `/chat`; `document.cookie` empty; suggested prompt "I was charged twice for the same order." → real AI reply (~4 s), URL `/chat/:id`; reload → session, conversation and history restored; Log out → `/login`, `GET /api/auth/me` → 401.

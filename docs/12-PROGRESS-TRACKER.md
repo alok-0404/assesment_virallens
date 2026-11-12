@@ -16,7 +16,7 @@ Allowed statuses: PENDING · IN_PROGRESS · BLOCKED · FAILED · COMPLETE. A pha
 | 09 Integration | COMPLETE (live AI reply BLOCKED) | COMPLETE | PASS browser E2E; server 125/125, client 58/58 | PASS | ISS-002 (logout) found and fixed; success path via out-of-repo stub (D-013) |
 | 10 Security & Testing | COMPLETE | COMPLETE | PASS server 158/158, client 59/59 | PASS | 08-SECURITY §12 all ticked; npm audit 0 vulns (prod + dev) both packages |
 | 11 Docker | BLOCKED (runtime) | COMPLETE (files) | Static checks PASS; `docker compose up` NOT RUN | Image build NOT RUN | Docker not installed; prod-only deps + Docker-context client build simulated successfully |
-| 12 Documentation | COMPLETE (deployment BLOCKED / NOT VERIFIED) | COMPLETE | PASS clean-clone: server 159/159, client 59/59; JSON + YAML valid | PASS | No Render/Vercel/Atlas/OpenRouter access → nothing deployed; ISS-004, D-014, D-015 |
+| 12 Documentation | COMPLETE (deployed + verified 2026-11-13) | COMPLETE | PASS clean-clone: server 159/159, client 59/59; JSON + YAML valid | PASS | No Render/Vercel/Atlas/OpenRouter access → nothing deployed; ISS-004, D-014, D-015 |
 | 13 Final Verification | COMPLETE (assessment NOT complete — 4 items BLOCKED) | COMPLETE | PASS server 159/159, client 59/59; shutdown + desktop layout verified | PASS | `docs/FINAL-ASSESSMENT-REPORT.md`: 0 FAIL, 0 NOT IMPLEMENTED; BLOCKED: live AI, Atlas, Docker, deployment |
 
 ## Known environment blockers
@@ -25,7 +25,7 @@ Allowed statuses: PENDING · IN_PROGRESS · BLOCKED · FAILED · COMPLETE. A pha
 | No MongoDB Atlas URI | Live Atlas connectivity (success criterion 2), Docker E2E, deployment | RESOLVED 2026-11-13 — owner's Atlas cluster verified (FINAL-ASSESSMENT-REPORT §8) |
 | No OpenRouter API key | Live AI replies (CHAT-03 live), `smoke:ai` | RESOLVED 2026-11-13 — real replies verified in smoke test and browser (§8) |
 | Docker not installed on host | Phase 11 runtime verification | BLOCKED — files authored, not executed |
-| No Vercel/Render accounts | Deployment verification | BLOCKED — config prepared only |
+| No Vercel/Render accounts | Deployment verification | RESOLVED 2026-11-13 — deployed and verified live (FINAL-ASSESSMENT-REPORT §9) |
 
 ---
 
@@ -156,4 +156,4 @@ Allowed statuses: PENDING · IN_PROGRESS · BLOCKED · FAILED · COMPLETE. A pha
 - Responsive desktop (FE-09): browser emulated at 1280 px → session restored from cookie, 288 px sidebar always visible, both drawer buttons hidden; emulation cleared afterwards.
 - Git: repo on `main`, no commits, no remote — committing/pushing left to the owner.
 **Outcome:** 0 FAIL, 0 NOT IMPLEMENTED. BLOCKED: real AI reply (CHAT-03 / criterion 6), Atlas (criterion 2), Docker build/run (OPS-01/02/03/07, criterion 15), deployment.
-**Next action:** ~~provide an OpenRouter key and Atlas URI~~ (done 2026-11-13: Atlas + real AI verified locally, report §8); install Docker (`docker compose up --build`) and deploy to Render/Vercel — exact steps in `docs/FINAL-ASSESSMENT-REPORT.md` §7.
+**Next action:** ~~provide an OpenRouter key and Atlas URI~~ (done 2026-11-13: Atlas + real AI verified locally, report §8); ~~deploy to Render/Vercel~~ (done 2026-11-13: https://assesment-virallens.vercel.app, report §9); remaining: install Docker (`docker compose up --build`) — steps in `docs/FINAL-ASSESSMENT-REPORT.md` §7.

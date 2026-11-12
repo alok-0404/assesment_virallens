@@ -2,7 +2,7 @@
 
 A full-stack customer-support chat application. Users sign up, chat with an AI support assistant ("Ava") powered by [OpenRouter](https://openrouter.ai), and come back later to their saved conversation history. Built with React + Vite, Node.js + Express, MongoDB Atlas and JWT cookie authentication.
 
-> **Status (see [`docs/FINAL-ASSESSMENT-REPORT.md`](docs/FINAL-ASSESSMENT-REPORT.md))** — Application, automated tests (server + client), security audit, Docker files and deployment configuration are complete. The full app has been verified locally against MongoDB Atlas with real OpenRouter replies. Docker runtime and the Vercel/Render deployment have **not** been verified yet. **The app has not been deployed.**
+> **Status (see [`docs/FINAL-ASSESSMENT-REPORT.md`](docs/FINAL-ASSESSMENT-REPORT.md))** — Application, automated tests (server + client), security audit, Docker files and deployment configuration are complete. **Live demo: [assesment-virallens.vercel.app](https://assesment-virallens.vercel.app)** (frontend on Vercel, API on Render free tier — the first request after ~15 min of inactivity can take up to a minute while the API wakes up). Verified end to end against MongoDB Atlas with real OpenRouter replies. Docker runtime has **not** been verified (Docker was not available in the build environment).
 
 ---
 
