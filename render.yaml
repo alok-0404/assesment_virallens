@@ -22,9 +22,9 @@ services:
       - key: COOKIE_SAMESITE
         value: lax
       - key: CLIENT_ORIGIN
-        value: https://REPLACE-WITH-VERCEL-APP.vercel.app
+        value: https://assesment-virallens.vercel.app
       - key: OPENROUTER_APP_URL
-        value: https://REPLACE-WITH-VERCEL-APP.vercel.app
+        value: https://assesment-virallens.vercel.app
       - key: OPENROUTER_MODEL
         value: nvidia/nemotron-3-ultra-550b-a55b:free
       - key: JWT_SECRET
