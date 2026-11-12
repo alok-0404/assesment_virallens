@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE-WITH-RENDER-SERVICE.onrender.com/api/:path*"
+      "destination": "https://ai-support-api-4v06.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
