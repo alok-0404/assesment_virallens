@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+npm-debug.log*
+*.log
+.env
+.env.*
+!.env.example
+src/test
+**/*.test.js
+**/*.test.jsx
+Dockerfile
+.dockerignore
+.vercel

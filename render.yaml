@@ -1,0 +1,35 @@
+# Render Blueprint for the API. Replace REPLACE-WITH-VERCEL-APP with the Vercel project domain,
+# then set MONGODB_URI and OPENROUTER_API_KEY in the Render dashboard (sync: false = never committed).
+services:
+  - type: web
+    name: ai-support-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAMESITE
+        value: lax
+      - key: CLIENT_ORIGIN
+        value: https://REPLACE-WITH-VERCEL-APP.vercel.app
+      - key: OPENROUTER_APP_URL
+        value: https://REPLACE-WITH-VERCEL-APP.vercel.app
+      - key: OPENROUTER_MODEL
+        value: nvidia/nemotron-3-ultra-550b-a55b:free
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
