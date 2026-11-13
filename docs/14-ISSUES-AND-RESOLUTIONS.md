@@ -8,6 +8,7 @@ Format per issue: ID · phase · symptom · reproduction · root cause · fix ·
 | ISS-002 | 09 | Logout looked successful in the UI but the session cookie survived (server returned 400) | RESOLVED |
 | ISS-003 | 09 | Stale API process kept serving after a restart (only the parent shell was killed) | RESOLVED (tooling) |
 | ISS-004 | 12 | Axios default timeout was 30 s instead of the specified 60 s (cold-start risk on Render) | RESOLVED |
+| ISS-005 | post-13 | Local login returned 502 because the dev watcher restarted the API on a `node_modules` file change | RESOLVED (dev script) |
 
 ## ISS-001 · Phase 03 · Test run appears to hang under PowerShell pipelines
 - **Symptom:** `npx vitest run 2>&1 | Select-String … | Select-Object -Last 60` never returned; no Vitest process was alive.
@@ -42,3 +43,12 @@ Format per issue: ID · phase · symptom · reproduction · root cause · fix ·
 - **Fix:** `timeout: 60000` (send keeps its 120 s per-request override, now documented in 05-FRONTEND).
 - **Affected modules:** `client/src/api/http.js`.
 - **Regression test:** `client/src/api/http.test.js` asserts `http.defaults.timeout === 60000`.
+
+## ISS-005 · Post-delivery (local dev) · Login returned 502 during `npm run dev`
+- **Symptom:** logging in on `http://localhost:5173` showed "Something went wrong"; browser console `POST /api/auth/login 502`.
+- **Reproduction:** the owner's dev terminal showed `Change detected in '...server\node_modules\iconv-lite\encodings\dbcs-data.js'` → `Restarting 'src/server.js'` at the moment of the login; the Vite proxy returned 502 for the request cut off by the restart. Login against a fresh `node --watch` instance (port 5013) returned 200 twice, so the API code and credentials were not at fault.
+- **Root cause:** `npm run dev` used `node --watch`, which watches every imported file including `node_modules`. Any write/timestamp change there (an `npm i`, antivirus scan, etc.) restarted the server and dropped in-flight requests.
+- **Fix:** `server/package.json` → `"dev": "node --watch-path=src src/server.js"` (watch only application code).
+- **Verification:** on port 5014: login 200 ×2; touching `node_modules/iconv-lite/encodings/dbcs-data.js` → 0 restarts; touching `src/app.js` → 1 restart and the API came back. Production (`npm start` / Render / Docker) never used `--watch` and is unaffected.
+- **Regression test:** none automated (dev-only script); verification steps above.
+- **Status:** RESOLVED.
