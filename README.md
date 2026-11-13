@@ -184,19 +184,47 @@ cd server && npm run smoke:ai   # optional live OpenRouter check (needs a real k
 - The AI provider is mocked **only in tests**; the application always calls the real OpenRouter API.
 
 ## Docker
+
+**1. Prerequisites**
+- Docker Desktop (Windows/macOS, with the WSL 2 backend on Windows) or Docker Engine + Compose v2 (Linux). Check with `docker --version` and `docker compose version`.
+- A MongoDB Atlas connection string with your machine's IP in Atlas → Network Access, and an OpenRouter API key (see the setup sections above).
+
+**2. Create `server/.env`** (Compose reads it; it is never copied into an image)
 ```bash
-cp server/.env.example server/.env    # Atlas URI, JWT secret, OpenRouter key
-docker compose up --build              # http://localhost:8080
-docker compose ps                      # both services should become "healthy"
-docker compose logs -f server
-docker compose down
+cp server/.env.example server/.env             # PowerShell: Copy-Item server/.env.example server/.env
 ```
+Fill in at least `MONGODB_URI`, `JWT_SECRET` (generate with the command in [Environment variables](#environment-variables)), `OPENROUTER_API_KEY`, and optionally `OPENROUTER_MODEL` (a model ID ending in `:free` avoids charges). Compose overrides `NODE_ENV`, `PORT`, `CLIENT_ORIGIN`, cookie and proxy settings for the containers.
+
+**3. Build and start** (from the repository root)
+```bash
+docker compose up --build -d
+```
+
+**4. Verify**
+```bash
+docker compose ps                              # server and client should show "(healthy)"
+curl http://localhost:8080/api/health          # {"success":true,"data":{"status":"ok",...,"database":"connected"}}
+```
+Open <http://localhost:8080>, sign up and send a message.
+
+**5. Logs and stop**
+```bash
+docker compose logs -f server                  # API logs
+docker compose down                            # stop and remove the containers
+```
+
+**Troubleshooting**
+- *Server never becomes healthy* → `docker compose logs server`: an "Invalid environment configuration" list means a missing/invalid value in `server/.env`; a MongoDB timeout means your IP is not in the Atlas allow-list.
+- *Port 8080 already in use* → stop the other process, or change `"8080:8080"` to e.g. `"8081:8080"` in `docker-compose.yml` and open port 8081 (also change `CLIENT_ORIGIN` / `OPENROUTER_APP_URL` in the same file to `http://localhost:8081`).
+- *Windows: Docker Desktop says WSL is missing or outdated* → in an administrator PowerShell run `wsl --install` (or `wsl --update`), reboot, and make sure virtualization is enabled in the BIOS.
+
+**What the containers are**
 - `server`: Node 24 Alpine, production dependencies only, non-root `node` user, health check on `/api/health`, graceful shutdown on `SIGTERM`. Port 5000 is internal only.
 - `client`: static build served by unprivileged Nginx on port 8080; `/api/` is proxied to the `server` service (120 s timeout for AI calls), SPA fallback, security headers.
 - MongoDB is Atlas (no database container); the server needs outbound internet access and an Atlas IP allow-list entry for your machine.
 - Compose sets `COOKIE_SECURE=false` only because local Docker is plain HTTP.
 
-> The Docker files were written and their build inputs checked (production-only install boots, client builds from the Docker context), but `docker compose up` has **not** been run: Docker was not available in the build environment.
+> The Docker files were written and their build inputs checked (production-only install boots, client builds from the Docker context), but `docker compose up` has **not** been run: Docker Desktop could not be installed on the development machine (WSL 2 installation problems). The same application code is verified live on Render + Vercel.
 
 ## API summary
 Base path `/api`, JSON envelope `{ success, data, meta? }` / `{ success: false, error: { code, message, details? } }`. All `POST`/`DELETE` requests need the `X-CSRF-Token` header (token from `GET /api/auth/csrf-token`). Full specification: [`docs/04-API-SPECIFICATION.md`](docs/04-API-SPECIFICATION.md).

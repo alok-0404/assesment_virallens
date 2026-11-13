@@ -161,7 +161,7 @@ Testing note: database tests run against a real `mongod` binary (mongodb-memory-
 | 12 | Functional responsive UI | PASS | Mobile and desktop verified in browser |
 | 13 | Automated tests pass | PASS | 159 / 59 |
 | 14 | Production frontend build | PASS | |
-| 15 | Runs with Docker Compose | **BLOCKED** | Docker not installed |
+| 15 | Runs with Docker Compose | **BLOCKED** | Docker Desktop could not be installed on the development machine (WSL 2 installation problems). Files complete; step-by-step run guide in README "Docker" |
 | 16 | Complete documentation | PASS | README + `docs/00–14` + phase docs + this report |
 | 17 | Ready for GitHub submission | PASS | `.gitignore` verified, no secrets, README "GitHub submission" steps. Pushed by the owner 2026-11-13 to [alok-0404/assesment_virallens](https://github.com/alok-0404/assesment_virallens) (`main` @ `4ed2c10`, 139 files, no `.env`/`node_modules`/`dist`, 0 secret matches) |
 | 18 | Deployment-ready configuration | PASS (config) | `render.yaml`, `client/vercel.json` valid; placeholders `REPLACE-WITH-RENDER-SERVICE` / `REPLACE-WITH-VERCEL-APP` must be filled at deploy time |
